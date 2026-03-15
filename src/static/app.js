@@ -569,6 +569,25 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         }
       </div>
+      <div class="share-buttons">
+        <span class="share-label">Share:</span>
+        <button class="share-btn share-twitter tooltip" data-activity="${name}" aria-label="Share on X (Twitter)">
+          𝕏
+          <span class="tooltip-text">Share on X (Twitter)</span>
+        </button>
+        <button class="share-btn share-facebook tooltip" data-activity="${name}" aria-label="Share on Facebook">
+          f
+          <span class="tooltip-text">Share on Facebook</span>
+        </button>
+        <button class="share-btn share-email tooltip" data-activity="${name}" aria-label="Share via Email">
+          ✉
+          <span class="tooltip-text">Share via Email</span>
+        </button>
+        <button class="share-btn share-copy tooltip" data-activity="${name}" aria-label="Copy link">
+          🔗
+          <span class="tooltip-text">Copy link to clipboard</span>
+        </button>
+      </div>
     `;
 
     // Add click handlers for delete buttons
@@ -586,6 +605,54 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Add click handlers for share buttons
+    activityCard.querySelectorAll(".share-btn").forEach((button) => {
+      button.addEventListener("click", () => {
+        const actName = button.dataset.activity;
+        const actDetails = allActivities[actName];
+        const shareText = `Check out ${actName} at Mergington High School! ${actDetails.description}`;
+        const shareUrl = window.location.href;
+
+        if (button.classList.contains("share-twitter")) {
+          window.open(
+            `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
+            "_blank",
+            "noopener,noreferrer"
+          );
+        } else if (button.classList.contains("share-facebook")) {
+          window.open(
+            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`,
+            "_blank",
+            "noopener,noreferrer"
+          );
+        } else if (button.classList.contains("share-email")) {
+          const subject = encodeURIComponent(`${actName} - Mergington High School`);
+          const body = encodeURIComponent(`${shareText}\n\n${shareUrl}`);
+          window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        } else if (button.classList.contains("share-copy")) {
+          const tooltipText = button.querySelector(".tooltip-text");
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(shareUrl).then(() => {
+              tooltipText.textContent = "Copied!";
+              setTimeout(() => {
+                tooltipText.textContent = "Copy link to clipboard";
+              }, 2000);
+            }).catch(() => {
+              tooltipText.textContent = "Copy not available";
+              setTimeout(() => {
+                tooltipText.textContent = "Copy link to clipboard";
+              }, 2000);
+            });
+          } else {
+            tooltipText.textContent = "Copy not available";
+            setTimeout(() => {
+              tooltipText.textContent = "Copy link to clipboard";
+            }, 2000);
+          }
+        }
+      });
+    });
 
     activitiesList.appendChild(activityCard);
   }
